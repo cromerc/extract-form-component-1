@@ -2,56 +2,23 @@
 import MovieItem from "@/MovieItem.vue";
 import { computed, reactive, ref } from "vue";
 
-const movies = ref([
-  {
-    id: 1,
-    name: "The Godfather",
-    description:
-      "The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.",
-    image:
-      "https://m.media-amazon.com/images/M/MV5BM2MyNjYxNmUtYTAwNi00MTYxLWJmNWYtYzZlODY3ZTk3OTFlXkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_FMjpg_UY1982_.jpg",
-    rating: null,
-    genres: ["Crime", "Drama"],
-    inTheaters: false,
-  },
-  {
-    id: 2,
-    name: "The Shawshank Redemption",
-    description:
-      "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
-    image:
-      "https://m.media-amazon.com/images/M/MV5BNDE3ODcxYzMtY2YzZC00NmNlLWJiNDMtZDViZWM2MzIxZDYwXkEyXkFqcGdeQXVyNjAwNDUxODI@._V1_FMjpg_UX1200_.jpg",
-    rating: null,
-    genres: ["Drama"],
-    inTheaters: false,
-  },
-  {
-    id: 3,
-    name: "The Dark Knight",
-    description:
-      "When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.",
-    image:
-      "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_FMjpg_UY2048_.jpg",
-    rating: null,
-    genres: ["Action", "Crime", "Drama"],
-    inTheaters: false,
-  },
-]);
+import { items } from "./movies.json";
 
-const computedMovies = computed(() => {
-  return movies.value.map((movie) => {
-    movie.notRated = Boolean(!movie?.rating);
+const movies = ref(items);
+
+function updateRating(id, rating) {
+  movies.value = movies.value.map((movie) => {
+    if (movie.id === id) {
+      movie.rating = rating;
+    }
     return movie;
-  });
-});
-function updateRating(movieIndex, rating) {
-  movies.value[movieIndex].rating = rating;
+  })
 }
-function removeMovie(movieIndex) {
-  movies.value = movies.value.filter((movie, index) => index !== movieIndex);
+function removeMovie(id) {
+  movies.value = movies.value.filter((movie) => movie.id !== id);
 }
-function editMovie(movieIndex) {
-  const movie = movies.value[movieIndex];
+function editMovie(id) {
+  const movie = movies.value.filter((movie) => movie.id === id)[0];
 
   form.id = movie.id;
   form.name = movie.name;
@@ -215,47 +182,23 @@ function removeRatings() {
           <input type="hidden" name="id" v-model="form.id" />
           <div class="movie-form-input-wrapper">
             <label for="name">Name</label>
-            <input
-              type="text"
-              name="name"
-              v-model="form.name"
-              class="movie-form-input"
-            />
+            <input type="text" name="name" v-model="form.name" class="movie-form-input" />
             <span class="movie-form-error">{{ errors.name }}</span>
           </div>
           <div class="movie-form-input-wrapper">
             <label for="description">Description</label>
-            <textarea
-              type="text"
-              name="description"
-              v-model="form.description"
-              class="movie-form-textarea"
-            />
+            <textarea type="text" name="description" v-model="form.description" class="movie-form-textarea" />
             <span class="movie-form-error">{{ errors.description }}</span>
           </div>
           <div class="movie-form-input-wrapper">
             <label for="image">Image</label>
-            <input
-              type="text"
-              name="image"
-              v-model="form.image"
-              class="movie-form-input"
-            />
+            <input type="text" name="image" v-model="form.image" class="movie-form-input" />
             <span class="movie-form-error">{{ errors.image }}</span>
           </div>
           <div class="movie-form-input-wrapper">
             <label for="genre">Genres</label>
-            <select
-              name="genre"
-              v-model="form.genres"
-              class="movie-form-input"
-              multiple
-            >
-              <option
-                v-for="option in genres"
-                :key="option.value"
-                :value="option.value"
-              >
+            <select name="genre" v-model="form.genres" class="movie-form-input" multiple>
+              <option v-for="option in genres" :key="option.value" :value="option.value">
                 {{ option.text }}
               </option>
             </select>
@@ -265,13 +208,8 @@ function removeRatings() {
           </div>
           <div class="movie-form-input-wrapper">
             <label for="genre" class="movie-form-checkbox-label">
-              <input
-                type="checkbox"
-                v-model="form.inTheaters"
-                :true-value="true"
-                :false-value="false"
-                class="movie-form-checkbox"
-              />
+              <input type="checkbox" v-model="form.inTheaters" :true-value="true" :false-value="false"
+                class="movie-form-checkbox" />
               <span>In theaters</span>
             </label>
             <span class="movie-form-error">
@@ -299,34 +237,20 @@ function removeRatings() {
       </div>
       <div class="flex-spacer"></div>
       <div class="movie-actions-list-actions">
-        <button
-          class="self-end movie-actions-list-action-button button-primary justify-self-end"
-          @click="removeRatings"
-        >
+        <button class="self-end movie-actions-list-action-button button-primary justify-self-end" @click="removeRatings">
           Remove Ratings
         </button>
-        <button
-          class="movie-actions-list-action-button"
-          :class="{
+        <button class="movie-actions-list-action-button" :class="{
             'button-primary': !showMovieForm,
             'button-disabled': showMovieForm,
-          }"
-          @click="showForm"
-          :disabled="showMovieForm"
-        >
+          }" @click="showForm" :disabled="showMovieForm">
           Add Movie
         </button>
       </div>
     </div>
     <div class="movie-list">
-      <MovieItem
-        v-for="movie in movies"
-        :key="movie.id"
-        :movie="movie"
-        @edit="editMovie"
-        @remove="removeMovie"
-        @update:rating="updateRating"
-      />
+      <MovieItem v-for="movie in movies" :key="movie.id" :movie="movie" @edit="editMovie" @remove="removeMovie"
+        @update:rating="updateRating" />
     </div>
   </div>
 </template>
